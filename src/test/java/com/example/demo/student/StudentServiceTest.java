@@ -123,4 +123,42 @@ class StudentServiceTest {
         verify(studentRepository, never()).deleteById(any());
     }
 
+    @Test
+    void canUpdateStudent () {
+        //given
+        Student student = new Student(
+                10L,
+                "Jamila",
+                "jamila@gmail.com",
+                Gender.FEMALE
+        );
+        given(studentRepository.existsById(student.getId()))
+                .willReturn(true);
+        given(studentRepository.getOne(student.getId())).willReturn(student);
+        //when
+        underTest.updateStudent(student.getId(), "npham4533@gmail.com");
+
+        verify(studentRepository).save(any());
+    }
+
+    @Test
+    void willThrowWhenUpdateStudentNotFound () {
+        Student student = new Student(
+                10L,
+                "Jamila",
+                "jamila@gmail.com",
+                Gender.FEMALE
+        );
+        given(studentRepository.existsById(student.getId()))
+                .willReturn(false);
+
+        // when
+        assertThatThrownBy(() -> underTest.updateStudent(student.getId(), "npham4533@gmail"))
+                .isInstanceOf(StudentNotFoundException.class)
+                        .hasMessageContaining("Student with id " + student.getId() + " does not exists");
+
+        // then
+        verify(studentRepository, never()).save(any());
+    }
+
 }
